@@ -1,0 +1,39 @@
+.wrap
+	.right.mt=link_to "&laquo; All Users".html_safe, users_path
+	%h1 #{@user.name}
+
+	
+	%h2 Purchased
+
+	%table
+		%tr
+			%th Item #
+			%th Item Name
+			%th Categories
+		-@user.items.each do |i|
+			%tr
+				%td=i.id
+				%td=i.name
+				%td
+					%ul
+						-i.categories.each do |c|
+							%li
+								=c.name
+
+
+	%h2 Recommended Items
+
+	%table
+		%tr
+			%th Item #
+			%th Item Name
+			%th Categories
+		-@user.recommended_items.each do |i|
+			%tr
+				%td=i.id
+				%td=i.name
+				%td
+					%ul
+						-i.categories.each do |c|
+							%li
+								=c.name

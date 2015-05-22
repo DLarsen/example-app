@@ -1,0 +1,91 @@
+:javascript
+
+	// nothing to control scope, but no biggie for the example app
+	var offset = #{@users.size};
+
+	// don't keep making AJAX requests after all the data has been loaded
+	var allLoaded = false;
+
+	var template = _.template('<% _.forEach(users, function(user) { %><tr><td><a href="/users/<%= user.id %>"><%= user.name %></a><div class="smalldim">User #<%= user.id %></div></td><td><ul><% _.forEach(user.items, function(item) { %><li><%= item.name %><div class="smalldim"><%= item.categories%></div></li><% }); %></ul></td></tr><% }); %>');
+
+	function loadNext(){
+		$loading = $(".loading");
+		$offset = $(".offset");
+		$progress = $(".progress");
+		$usersTable = $("#users");
+
+		var progress = 100 * offset / #{@total_users};
+		$progress.css("width", progress + '%')
+		$offset.html(numberWithCommas(offset));
+		$loading.show();
+
+		$.ajax({
+		  url: "#{users_path(format:'json')}?offset=" + offset,
+		}).done(function(data) {
+		  offset += data.users.length;
+			$loading.fadeOut();
+			$usersTable.append(template(data))
+		  allLoaded = data.length == 0;
+		});
+	}
+
+	function numberWithCommas(x) {
+		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+	$(window).scroll(function(){
+	    if ($(window).scrollTop() > $(document).height()-$(window).height() - 50){
+	        if (!allLoaded){
+	        	loadNext();
+	        }
+	    }
+	});
+
+:css
+	.loading {
+		display: none;
+		position: fixed;
+		max-width: 240px;
+		bottom: 0;
+		left: 0;
+	}
+	.loading .label {
+		color: #FFF;
+		background: #bbb;
+		padding: 10px;
+		display: inline-block;
+	}
+
+	.progress {
+		background-color: #39A4D0;
+		height: 10px;
+		width: 0%;
+	}
+
+.wrap
+	%h1 Users
+
+	%table#users
+		%tr
+			%th Username
+			%th Purchased Items
+		-@users.each do |u|
+			%tr
+				%td
+					=link_to u.name, user_path(u)
+					.smalldim User ##{u.id}
+				%td
+					%ul
+						-u.items.each do |i|
+							%li
+								=i.name
+								.smalldim
+									=i.categories.map(&:name).join(", ")
+	.loading
+		.label
+			Loading
+			%span.offset
+			of
+			=number_with_delimiter @total_users
+		.progress
+			%div

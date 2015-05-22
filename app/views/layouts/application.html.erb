@@ -2,12 +2,25 @@
 <html>
 <head>
   <title>ExampleApp</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css'>
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
 <body>
+<header>
+  <div class="wrap">
+    Example App
+  
+    <%- if admin_signed_in? %>
+      <div class="signed-in">
+        Welcome, <%=current_admin.name%>
+      </div>
+    <%- end %>
 
+  </div>
+  
+</header>
 <%= yield %>
 
 </body>
